@@ -1,0 +1,18 @@
+[title]
+type=Label
+text=CHOOSE YOUR DIFFICULTY
+y=20
+color=(150,225,225)
+font_size=48
+
+[button_easy]
+type=Button
+bounds=(200,60,150,50)
+
+[button_normal]
+type=Button
+bounds=(200,120,150,50)
+
+[button_hard]
+type=Button
+bounds=(200,180,150,50)
