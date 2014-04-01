@@ -10,8 +10,6 @@ from ui import *
 from io_utils import *
 from math_utils import *
 
-import constants
-
 class PlayScreen(screen.Screen):
     """Playing screen"""
     
@@ -26,16 +24,10 @@ class PlayScreen(screen.Screen):
         self.ticks, self.run_ticks = 0, 0
         self.score = 0
         
-        # Set difficulty from kwargs
-        self.difficulty = 'easy'
-        if 'difficulty' in kwargs: self.difficulty = kwargs['difficulty']
-
+        self.difficulty = kwargs.get('difficulty', 'easy')
         self.load_config()
-        
-        # Create tank from kwargs
-        tank_model = "classic"
-        if 'tank' in kwargs: tank_model = kwargs['tank']
-        self.create_tank(tank_model)
+
+        self.create_tank(kwargs.get('tank', 'classic'))
 
         self.create_ui()
         self.create_pause_ui()
@@ -98,20 +90,19 @@ class PlayScreen(screen.Screen):
             console.warn("Couldn't find `bg` in `" + pause_ui_path + "`.")
             
         try: # XXX
-            self.pause_ui.center_component('title', 1, 0)
-            self.pause_ui.center_component('button_resume', 1, 0)
-            self.pause_ui.center_component('button_restart', 1, 0)
-            self.pause_ui.center_component('button_quit', 1, 0)
-        except AttributeError:
+            for component in self.pause_ui:
+                if component.name != 'bg':
+                    self.pause_ui.center_component(component.name, 1, 0)
+        except AttributeError as e:
             console.warn("Can't center at line 103.")
             
     def handle_input(self, event):
         hotkeys = self.game.keybindings
         
-        if self.state == self.STATE_PAUSED:
+        if self.state == PlayScreen.STATE_PAUSED:
             if event.type == KEYDOWN:
                 if event.key in hotkeys['pause']:
-                    self.set_state(self.STATE_RUNNING)
+                    self.set_state(PlayScreen.STATE_RUNNING)
             elif event.type == MOUSEBUTTONUP:
                 if event.button == 1:
                     c = self.pause_ui.get_component_at_pos(pygame.mouse.get_pos())
@@ -119,11 +110,11 @@ class PlayScreen(screen.Screen):
                         if c.name == 'button_quit':
                             pygame.event.post(pygame.event.Event(QUIT))
                         elif c.name == 'button_resume':
-                            self.set_state(self.STATE_RUNNING)
+                            self.set_state(PlayScreen.STATE_RUNNING)
                         elif c.name == 'button_restart':
                             self.game.set_screen(GameOverScreen(self.game))
                             
-        if self.state == self.STATE_RUNNING:
+        if self.state == PlayScreen.STATE_RUNNING:
             if event.type == KEYDOWN:
                 if event.key in hotkeys['pause']:
                     self.set_state(self.STATE_PAUSED)
@@ -478,11 +469,7 @@ class PlayScreen(screen.Screen):
         self.score += n
         
     def set_state(self, state):
-        if state == self.STATE_PAUSED:
-            self.pause_ui.listening = True
-        else:
-            self.pause_ui.listening = False
-            
+        self.clear_tank_events()
         self.state = state
         
     def spawn_one_bullet(self):
@@ -491,3 +478,9 @@ class PlayScreen(screen.Screen):
         bullet.rot = self.tank.rot
         self.bullets.append(bullet)
         self.tank.bullet_last_shot_tick = self.run_ticks
+        
+    def clear_tank_events(self):
+        self.tank.speed = 0
+        self.tank.dir = 0
+        self.tank.using_boost = False
+        self.tank.bullet_fire_now = False

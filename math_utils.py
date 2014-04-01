@@ -7,18 +7,28 @@ def circle_collision(a, b):
         a (circle): The first circle for which to check for collision.
         b (circle): The second circle for which to check for collision.
     Returns:
-        bool: True if the two circles collide.
+        True if the two circles collide.
     """
     return math.hypot(b.x-a.x, b.y-a.y) <= b.radius+a.radius
 
-def point_in_rect(*args):
-    point = args[0]
-    rect = args[1]
+def point_in_rect(point, rect):
+    """Checks if the given point is within the bounds of the given rectangle.
     
-    try:
+    Args:
+        point: A tuple or point object containing x and y values.
+        rect: A tuple or rect object containing x, y, width, and height values.
+    Returns:
+        True if the point is in the rectangle.
+    """
+    if hasattr(point, 'x') and hasattr(point, 'y'):
         px, py = point.x, point.y
-    except:
-        px, py = point[0], point[1]
+    elif isinstance(point, (list, tuple)):
+        px, py = point[:2]
     
-    return (rect.x <= px <= rect.x+rect.width and
-            rect.y <= py <= rect.y+rect.height)
+    if (hasattr(rect, 'x') and hasattr(rect, 'y') and
+        hasattr(rect, 'width') and hasattr(rect, 'height')):
+        rx, ry, rw, rh = rect.x, rect.y, rect.width, rect.height
+    elif isinstance(rect, (list, tuple)):
+        rx, ry, rw, rh = point[:4]
+        
+    return (rw <= px <= rx+rw) and (ry <= py <= ry+rh)

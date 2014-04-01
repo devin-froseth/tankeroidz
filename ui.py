@@ -177,6 +177,10 @@ class UI(object):
             if self.components[i].name == key:
                 return True
         return False
+        
+    def __iter__(self):
+        for c in self.components:
+            yield c
 
     def __delitem__(self, key):
         if type(key) is not int:

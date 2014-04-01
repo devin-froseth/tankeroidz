@@ -1,7 +1,6 @@
 import pygame
 import screen
 import title_screen
-from utils import *
 from pygame.locals import *
 
 class GameOverScreen(screen.Screen):

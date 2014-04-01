@@ -4,14 +4,14 @@ import collections
 image_cache = {}
 DEFAULT_IMG = "img_not_found"
 
-def cache_image(name, img):
-    """Caches the specified image, assigning it to the specified name,
+def cache_image(name, image):
+    """Stores the specified name-image pair in the cache dictionary.
     
     Args:
-        name (str): The name for the new cache record.
-        img (pygame.Surface): The image (PyGame Surface) to store.
+        name: The name for the new cache record.
+        image: The image (PyGame Surface) to store.
     """
-    image_cache[name] = img
+    image_cache[name] = image
 
     
 def get_image(name): #TODO
@@ -19,7 +19,7 @@ def get_image(name): #TODO
     no cache record with the given name.
     
     Args:
-        name (str): The name of the cached image to retrieve.
+        name: The name of the cached image to retrieve.
     Returns:
         pygame.Surface: Cached image object.
     """
@@ -28,12 +28,18 @@ def get_image(name): #TODO
     elif DEFAULT_IMG in image_cache:
         return image_cache[DEFAULT_IMG]
     else:
-        raise KeyError("The image <<" + name + ">> is not in the cache and the "
-            + "fallback image cannot be found.")
+        raise KeyError("The image << " + name + " >> is not in the cache and "
+            "the fallback image cannot be found.")
 
             
 def file_name(file_path):
-    print "CALLED for ", file_path
+    """Trims a file's path into just its name and returns it.
+    
+    Args:
+        file_path: The file path to be manipulated.
+    Returns:
+        string: The file's name, without any directories or extensions.
+    """
     try:
         return os.path.splitext(os.path.split(file_path)[1])[0]
     except:
@@ -41,13 +47,15 @@ def file_name(file_path):
 
         
 def get_filenames_r(dir, ext=None):
-    """Return all files in a specific directory and its subdirectories.
+    """Return all files in a specific directory (including those in
+    subdirectories).
     
     Args:
         dir: Directory to crawl for files.
         ext (optional): The file extension (as a string) or extensions (as a
             collection of strings)
-    
+    Returns:
+        A list of all matching file paths in the given directory.
     See:
         http://stackoverflow.com/questions/19587118/python-iterating-through-directories
         http://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
@@ -73,9 +81,12 @@ def ini_to_dict(f):
         file_name (str): The path to the desired INI file.
     Returns:
         dict: A dictionary populated with data from the INI file.
+    Raises:
+        TypeError, IOError
     """
     
     """NOTE: floats aren't supported for dynamic casting"""
+    
     if type(f) is str:
         ini_file = open(f, 'r')
     elif not isinstance(f, file):
@@ -124,7 +135,8 @@ def ini_to_dict(f):
         # The INI file is probably malformed
         else:
             file_path = os.path.join(os.path.abspath(ini_file.name))
-            raise IOError("The specified INI file <<" + file_path + ">> is not formed properly.")
+            raise IOError("The specified INI file << " + file_path + " >> is "
+                "not formed properly.")
         
     ini_file.close()
     

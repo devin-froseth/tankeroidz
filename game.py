@@ -10,13 +10,13 @@ import config
 import io_utils
 
 class Game:
+    """The game application; loads the game and manages the main loop."""
 
     def __init__(self):
         pygame.init()
 
         self.load()
         
-        self.console = Console()
         self.timer = pygame.time.Clock()
         
         # Must set logo before setting display mode
@@ -28,36 +28,42 @@ class Game:
             self.settings['height']))
 
         self.preload_images()
-        
-        self.start()
   
     def load(self):
         """Load settings and keybindings."""
+        self.load_settings()
+        self.load_keybindings()
+            
+    def load_settings(self):
         try:
             self.settings = io_utils.ini_to_dict("config/settings.ini")
-            self.load_keybindings()
         except IOError:
             self.settings = config.defaults['settings']
-            self.keybindings = config.defaults['keybindings']
-            console.log("Failed to load settings/keybindings. Defaults loaded.")
+            console.warn("Failed to load game settings. Defaults loaded from " 
+                "config.py.")
             
     def load_keybindings(self):
-        kb = io_utils.ini_to_dict("config/keybinds.ini")
-            
-        # Convert keybinding strings to lists with PyGame keys
-        for action in kb:
-            key_list = []
-            key_list_as_str = kb[action].split(",")
-            
-            for key in key_list_as_str:
-                # Fix issues with caps (if someone manually edits keybinds.ini?)
-                key = key.upper() if len(key) > 1 else key.lower()
-                key = "K_" + key
+        try:
+            kb = io_utils.ini_to_dict("config/keybinds.ini")
+        except IOError:
+            kb = config.defaults['keybindings']
+            console.warn("Failed to load keybindings. Defaults loaded from "
+                "config.py.")
+        else: 
+            # No error, but we still must convert dict values from str -> list
+            for action in kb:
+                key_list = []
+                key_list_as_str = kb[action].split(",")
                 
-                if key in globals():
-                    key_list.append(globals()[key])
-            
-            kb[action] = key_list
+                for key in key_list_as_str:
+                    # Fix issues with caps (a user manually edits keybinds.ini?)
+                    key = key.upper() if len(key) > 1 else key.lower()
+                    key = "K_" + key
+                    
+                    if key in globals():
+                        key_list.append(globals()[key])
+                
+                kb[action] = key_list
                     
         self.keybindings = kb
     
@@ -74,7 +80,7 @@ class Game:
         
     def start(self):
         """Prepare the game to start and begin the game loop."""
-        self.screen = None
+        #self.screen = None
         self.set_screen(TitleScreen(self))
         self.ticks = 0
         self.run()
@@ -93,12 +99,12 @@ class Game:
         """Process events and input such as keypresses, mouse button presses,
         and PyGame Events."""
         for event in pygame.event.get():
-            if (event.type == QUIT):
-                print "Thanks for playing " + self.settings['title'] + "!"
+            if event.type == QUIT:
+                console.log("Thanks for playing " + self.settings['title'] + "!")
                 pygame.quit()
                 sys.exit()
-            elif (event.type == KEYDOWN):
-                if (event.key == K_ESCAPE): # If ESC is pressed, QUIT the game
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE: # If ESC is pressed, QUIT the game
                     pygame.event.post(pygame.event.Event(QUIT))
                     
             self.screen.handle_input(event)
@@ -112,44 +118,12 @@ class Game:
         """Render the current screen to the PyGame surface and update the
         display."""
         self.screen.render()
-        self.render_console()
         pygame.display.flip()
-        
-    def render_console(self): # TODO
-        settings = self.settings
-        if not self.settings['show_console']:
-            return
-            
-        console = self.console
-            
-        console_height = 0.25 * settings['height']
-        console_alpha = 0.5
-        console_color = 0, 0, 0
-        
-        overlay = pygame.Surface((settings["width"], console_height))
-        overlay.set_alpha(int(console_alpha * 255))
-        overlay.fill(console_color)
-        
-        textarea = pygame.Surface((settings["width"], 25))
-        textarea.set_alpha(int(.75 * 255))
-        textarea.fill(console_color)
-        
-        self.frame.blit(overlay, (0, 0))
-        self.frame.blit(textarea, (0, console_height))
-        
-        y = console_height
-        for msg in console.messages:
-          txt = self.fonts['console'].render(msg[0], 1, (255, 255, 255))
-          self.frame.blit(txt, (50, y))
-          y -= 15
     
     def set_screen(self, screen):
         """Sets the game's current screen, which represents its state."""
-        if (self.screen is not None):
+        if hasattr(self, "screen") and self.screen is not None:
             self.screen.exit()
         
         self.screen = screen
         self.screen.enter()
-
-game = Game()
-game.start()
