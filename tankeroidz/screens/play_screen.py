@@ -166,7 +166,8 @@ class PlayScreen(screen.Screen):
         
         # Kill everything with no health - this must come before any regen!
         if tank.health <= 0:
-            self.game.set_screen(GameOverScreen(self.game))
+            self.game.set_screen(GameOverScreen(self.game, score=self.score))
+            
         for enemy in self.enemies:
             if enemy.health <= 0:
                 self.enemies.remove(enemy)

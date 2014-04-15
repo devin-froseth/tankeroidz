@@ -1,3 +1,13 @@
+""" 
+    tankeroidz.game
+    ~~~~~~~~~~~~~~~
+    
+    Tankeroidz game application/engine. Contains the Game class, which
+    initializes the game and manages the game loop.
+    
+    :copyright: (C) 2014 Froseth, Devin and Palowitch, Brendon.
+    :license: GPL, see LICENSE for more details.
+"""
 import pygame
 import sys
 import os
