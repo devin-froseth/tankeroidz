@@ -409,7 +409,7 @@ class Label(UIObject):
         self._update_surface()
         
     def _update_surface(self):
-        f = pygame.font.Font(fonts[self.font][0], fonts[self.font][1])
+        f = pygame.font.Font(fonts[self.font][0], self.font_size)
         self.surface = f.render(str(self.text), 1, self.color)
         self.request_redraw = False
 

@@ -116,6 +116,8 @@ class PlayScreen(screen.Screen):
                             
         if self.state == PlayScreen.STATE_RUNNING:
             if event.type == KEYDOWN:
+                if event.key == K_k:
+                    self.tank.health = 0
                 if event.key in hotkeys['pause']:
                     self.set_state(self.STATE_PAUSED)
                 elif event.key in hotkeys['right']:

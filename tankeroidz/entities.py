@@ -7,13 +7,13 @@ import io_utils
 class Entity(object):
     def __init__(self):
         self.create()
-        
+
     def create(self):
         pass
-        
+
 class GameObject(Entity): # TODO convert ticks -> sec
     """A unit in the game world.
-    
+
     Attributes:
         x: Unit's x-coordinate in pixels
         y: Unit's y-coordinate in pixels
@@ -46,7 +46,7 @@ class GameObject(Entity): # TODO convert ticks -> sec
         impact: Damage done in health points when this unit collides with
             another unit.
         age: The number of game ticks that this unit has been active.
-        
+
         position: a tuple with the unit's x- and y-coordinates
         draw_pos: a read-only tuple with the unit's coords for drawing
     """
@@ -54,18 +54,18 @@ class GameObject(Entity): # TODO convert ticks -> sec
         self.x, self.y = 0, 0
         self._radius = 1
         self._width, self._height = 1, 1
-        
+
         self.rot = 0
         self.turn_radius = 180 * math.pi/180
-        
+
         self.speed = 0
         self.move_speed = 1 # px / sec
-        
+
         self.color = (0, 0, 0)
         self.sprite = None
-        
+
         self.auras = []
-        
+
         self.max_health = 1
         self.health = 1
         self.health_regen = 0
@@ -75,64 +75,64 @@ class GameObject(Entity): # TODO convert ticks -> sec
         self.power_regen = 0
 
         self.damage_modifier = 1.0
-        
+
         # Damage done on collision
         self.impact = 0
-        
+
         self.age = 0 # ticks
-        
+
         self.modifiers = {}
         self.mod_timers = {}
-        
+
         self.create()
-        
+
     def apply_damage(self, health):
         self.health -= health * self.damage_modifier
-        
+
     def on_impact(self, unit):
         return
-        
+
     def get(self, name, default=''):
         value = getattr(self, name)
-        
+
         if (value is None): #TODO
             print "No!!!! property"
             return
-        
+
         if (name in self.modifiers):
             mod = self.modifiers[name]
-            
+
             value = mod.oper(value, mod.value)
-            
+
         return value
-                
+
     @property
     def radius(self):
         return self._radius
-        
+
     @radius.setter
     def radius(self, value):
         self._width, self._height = value*2, value*2
         self._radius = value
-    
+
     @property
     def width(self):
         return self._width
-        
+
     @width.setter
     def width(self, value):
         self._radius = value/2 if (value < self._height) else self._radius
         self._width = value
-        
+
     @property
     def height(self):
         return self._height
-        
+
     @height.setter
     def height(self, value):
         self._radius = value/2 if (value < self._width) else self._radius
         self._height = value
-        
+
     @property
     def bounds(self, value):
         return (self.x, self.y, self.width, self.height)
